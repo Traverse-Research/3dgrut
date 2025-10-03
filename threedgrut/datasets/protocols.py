@@ -73,6 +73,9 @@ class BoundedMultiViewDataset(Protocol):
         """TODO"""
         ...
 
+    def get_fovy(self, batch: dict) -> float:
+        ... 
+
     def get_poses(self) -> np.ndarray:
         """Get camera poses as 4x4 transformation matrices.
 

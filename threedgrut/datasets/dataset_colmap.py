@@ -382,6 +382,22 @@ class ColmapDataset(Dataset, BoundedMultiViewDataset, DatasetVisualization):
 
         return output_dict
 
+    def get_fov_y(self, batch):
+        data = batch["data"][0].to(self.device, non_blocking=True)
+        intr_id = batch["intr"][0].item()
+
+        intr, _, _, _ = self.intrinsics[intr_id]
+        height, _ = data.shape[1:3]
+        focal_length = intr["focal_length"][1]
+        
+        height = torch.tensor(height, dtype=torch.float32, device=self.device)
+        focal_length = torch.tensor(focal_length, dtype=torch.float32, device=self.device)
+
+        fovy_rad = 2.0 * torch.atan(height / (2.0 * focal_length))
+        fovy_deg = fovy_rad * (180.0 / np.pi)
+
+        return fovy_deg
+
     def get_gpu_batch_with_intrinsics(self, batch):
         """Add the intrinsics to the batch and move data to GPU."""
 

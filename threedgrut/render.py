@@ -19,6 +19,7 @@ from pathlib import Path
 import numpy as np
 import torch
 import torchvision
+import json
 from torchmetrics import PeakSignalNoiseRatio
 from torchmetrics.image import StructuralSimilarityIndexMeasure
 from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
@@ -146,11 +147,14 @@ class Renderer:
                 "lpips": LearnedPerceptualImagePatchSimilarity(net_type="vgg", normalize=True).to("cuda"),
             }
 
-        output_path_renders = os.path.join(self.out_dir, f"ours_{int(self.global_step)}", "renders")
+        output_path_renders = os.path.join(self.out_dir, "renders")
         os.makedirs(output_path_renders, exist_ok=True)
 
+        output_path_camera_poses = os.path.join(self.out_dir, "camera_poses")
+        os.makedirs(output_path_camera_poses, exist_ok=True)
+
         if self.save_gt:
-            output_path_gt = os.path.join(self.out_dir, f"ours_{int(self.global_step)}", "gt")
+            output_path_gt = os.path.join(self.out_dir, "gt")
             os.makedirs(output_path_gt, exist_ok=True)
 
         psnr = []
@@ -158,6 +162,7 @@ class Renderer:
         lpips = []
         inference_time = []
         test_images = []
+        camera_poses = []
 
         best_psnr = -1.0
         worst_psnr = 2**16 * 1.0
@@ -228,6 +233,10 @@ class Renderer:
                     ).item()
                 )
 
+            height, width = gpu_batch.rgb_gt.shape[1:3]
+            fovy = self.dataset.get_fov_y(batch)
+            camera_poses.append({"matrix": batch["pose"].tolist(), "resolution": list([width, height]), "fovy": fovy.tolist()},)
+
             # Record the time
             inference_time.append(outputs["frame_time_ms"])
 
@@ -251,7 +260,7 @@ class Renderer:
         if self.conf.render.enable_kernel_timings:
             table["mean_inference_time"] = f"{'{:.2f}'.format(mean_inference_time)}" + " ms/frame"
 
-        logger.log_table(f"⭐ Test Metrics - Step {self.global_step}", record=table)
+        logger.log_table(f"Test Metrics - Step {self.global_step}", record=table)
 
         if self.writer is not None:
             self.writer.add_scalar("psnr/test", mean_psnr, self.global_step)
@@ -282,5 +291,8 @@ class Renderer:
                     self.global_step,
                     dataformats="NHWC",
                 )
+
+        with open(os.path.join(output_path_camera_poses, 'camera_benchmark_data.json'), 'w') as f:
+            json.dump(camera_poses, f)
 
         return mean_psnr, std_psnr, mean_inference_time

@@ -166,7 +166,7 @@ class Tracer:
         self.conf = conf
         self.num_update_bvh = 0
 
-        logger.info(f'🔆 Creating Optix tracing pipeline.. Using CUDA path: "{torch.utils.cpp_extension.CUDA_HOME}"')
+        logger.info(f'Creating Optix tracing pipeline.. Using CUDA path: "{torch.utils.cpp_extension.CUDA_HOME}"')
         torch.zeros(1, device=self.device)  # Create a dummy tensor to force cuda context init
         load_3dgrt_plugin(conf)
 

@@ -138,11 +138,11 @@ def jet_map(map: torch.Tensor, max_val: float) -> torch.Tensor:
 
 def create_summary_writer(conf, object_name, out_dir, experiment_name, use_wandb):
     timestamp = datetime.now().strftime("%d%m_%H%M%S")
-    run_name = f"{object_name}-" + timestamp
+    run_name = "" # f"{object_name}-" + timestamp
 
     assert out_dir is not None, "Output directory must be specified"
-    out_dir = os.path.join(out_dir, experiment_name) if experiment_name else out_dir
-    out_dir = os.path.join(out_dir, run_name)
+    # out_dir = os.path.join(out_dir, experiment_name) if experiment_name else out_dir
+    # out_dir = os.path.join(out_dir, run_name)
 
     if use_wandb:
         import wandb
