@@ -193,11 +193,11 @@ class Trainer3DGRUT:
             case "GSStrategy":
                 from threedgrut.strategy.gs import GSStrategy
                 self.strategy = GSStrategy(conf, self.model)
-                logger.info("🔆 Using GS strategy")
+                logger.info("Using GS strategy")
             case "MCMCStrategy":
                 from threedgrut.strategy.mcmc import MCMCStrategy
                 self.strategy = MCMCStrategy(conf, self.model)
-                logger.info("🔆 Using MCMC strategy")
+                logger.info("Using MCMC strategy")
             case _:
                 raise ValueError(f"unrecognized model.strategy {conf.strategy.method}")
 
@@ -212,7 +212,7 @@ class Trainer3DGRUT:
 
         # Initialize
         if conf.resume:  # Load a checkpoint
-            logger.info(f"🤸 Loading a pretrained checkpoint from {conf.resume}!")
+            logger.info(f"Loading a pretrained checkpoint from {conf.resume}!")
             checkpoint = torch.load(conf.resume)
             model.init_from_checkpoint(checkpoint)
             self.strategy.init_densification_buffer(checkpoint)
@@ -240,7 +240,7 @@ class Trainer3DGRUT:
             model.build_acc()
             global_step = conf.import_ply.init_global_step
         else:
-            logger.info(f"🤸 Initiating new 3dgrut training..")
+            logger.info(f"Initiating new 3dgrut training..")
             match conf.initialization.method:
                 case "random":
                     model.init_from_random_point_cloud(
@@ -303,7 +303,7 @@ class Trainer3DGRUT:
         writer, out_dir, run_name = create_summary_writer(
             conf, object_name, conf.out_dir, conf.experiment_name, conf.use_wandb
         )
-        logger.info(f"📊 Training logs & will be saved to: {out_dir}")
+        logger.info(f"Training logs & will be saved to: {out_dir}")
 
         # Store parsed config for reference
         with open(os.path.join(out_dir, "parsed.yaml"), "w") as fp:
@@ -528,7 +528,7 @@ class Trainer3DGRUT:
         table = {k: np.mean(v) for k, v in metrics.items() if k in ("psnr", "ssim", "lpips")}
         for time_key in mean_timings:
             table[time_key] = f"{'{:.2f}'.format(mean_timings[time_key])}" + " ms/it"
-        logger.log_table(f"📊 Validation Metrics - Step {global_step}", record=table)
+        logger.log_table(f"Validation Metrics - Step {global_step}", record=table)
 
     @torch.cuda.nvtx.range(f"log_training_iter")
     def log_training_iter(
@@ -670,7 +670,7 @@ class Trainer3DGRUT:
         else:
             ckpt_path = os.path.join(out_dir, "ckpt_last.pt")
         torch.save(parameters, ckpt_path)
-        logger.info(f'💾 Saved checkpoint to: "{os.path.abspath(ckpt_path)}"')
+        logger.info(f'Saved checkpoint to: "{os.path.abspath(ckpt_path)}"')
 
         conf = self.conf
         if conf.export_ply.enabled:
@@ -889,14 +889,14 @@ class Trainer3DGRUT:
             training_time=f"{stats['elapsed']:.2f} s",
             iteration_speed=f"{self.global_step / stats['elapsed']:.2f} it/s",
         )
-        logger.log_table(f"🎊 Training Statistics", record=table)
+        logger.log_table(f"Training Statistics", record=table)
 
         # Perform testing
         self.on_training_end()
-        logger.info(f"🥳 Training Complete.")
+        logger.info(f"Training Complete.")
 
         # Updating the GUI
         if self.gui is not None:
             self.gui.training_done = True
-            logger.info(f"🎨 GUI Blocking... Terminate GUI to Stop.")
+            logger.info(f"GUI Blocking... Terminate GUI to Stop.")
             self.gui.block_in_rendering_loop(fps=60)

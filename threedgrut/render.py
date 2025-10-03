@@ -260,7 +260,7 @@ class Renderer:
         if self.conf.render.enable_kernel_timings:
             table["mean_inference_time"] = f"{'{:.2f}'.format(mean_inference_time)}" + " ms/frame"
 
-        logger.log_table(f"⭐ Test Metrics - Step {self.global_step}", record=table)
+        logger.log_table(f"Test Metrics - Step {self.global_step}", record=table)
 
         if self.writer is not None:
             self.writer.add_scalar("psnr/test", mean_psnr, self.global_step)

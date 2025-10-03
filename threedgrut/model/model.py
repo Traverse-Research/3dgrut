@@ -508,10 +508,10 @@ class MixtureOfGaussians(torch.nn.Module, ExportableModel):
 
         if self.conf.optimizer.type == "adam":
             self.optimizer = torch.optim.Adam(params, lr=self.conf.optimizer.lr, eps=self.conf.optimizer.eps)
-            logger.info("🔆 Using Adam optimizer")
+            logger.info("Using Adam optimizer")
         elif self.conf.optimizer.type == "selective_adam":
             self.optimizer = SelectiveAdam(params, lr=self.conf.optimizer.lr, eps=self.conf.optimizer.eps)
-            logger.info("🔆 Using Selective Adam optimizer")
+            logger.info("Using Selective Adam optimizer")
         else:
             raise ValueError(f"Unknown optimizer type: {self.conf.optimizer.type}")
 
